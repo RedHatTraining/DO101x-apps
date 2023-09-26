@@ -1,3 +1,3 @@
 <?php
-  print "I am running on host -> " . gethostname() ." (" . $_SERVER['SERVER_ADDR'] . ")" . "\n";
+  print "We are running the host -> " . gethostname() ." (" . $_SERVER['SERVER_ADDR'] . ")" . "\n";
 ?>
