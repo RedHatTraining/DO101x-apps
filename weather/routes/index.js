@@ -10,30 +10,27 @@ router.get('/', function(req, res) {
   res.render('index', { weather: null, err: null });
 });
 
-router.post('/get_weather', async function (req,res) {
-  let city = req.body.city;
-  let url = `http://api.openweathermap.org/data/2.5/weather?q=${city}&units=${UNITS}&appid=${OWM_API_KEY}`;
+router.post('/get_weather', async function (req, res) {
+  let lat = req.body.lat; // Latitude from the form
+  let lon = req.body.lon; // Longitude from the form
+  let url = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${UNITS}&appid=${OWM_API_KEY}`;
 
   try {
     let data = await fetch(url);
     let weather = await data.json();
     console.log(weather);
-    if(weather.cod == '404' && weather.main == undefined) {
-      res.render('index', {weather: null, error: 'Error: Unknown city'});
+    if (weather.cod == '404' && weather.main == undefined) {
+      res.render('index', { weather: null, error: 'Error: Unknown location' });
+    } else if (weather.cod == '401' && weather.main == undefined) {
+      res.render('index', { weather: null, error: 'Error: Invalid API Key. Please see http://openweathermap.org/faq#error401 for more info.' });
+    } else {
+      let unit_hex = (UNITS == 'imperial') ? '℉' : '℃';
+      res.render('index', { weather: weather, error: null, units: unit_hex });
     }
-    else if (weather.cod == '401' && weather.main == undefined) {
-      res.render('index', {weather: null, error: 'Error: Invalid API Key. Please see http://openweathermap.org/faq#error401 for more info.'});
-    }
-    else {
-      let unit_hex = (UNITS == 'imperial') ? '&#8457' : '&#8451';
-      res.render('index', {weather: weather, error: null, units: unit_hex});
-    }
-  }
-  catch (err) {
+  } catch (err) {
     console.log(err);
-    res.render('index', {weather: null, error: 'Error: Unable to invoke OpenWeatherMap API'});
+    res.render('index', { weather: null, error: 'Error: Unable to invoke OpenWeatherMap API' });
   }
-
 });
 
 module.exports = router;
